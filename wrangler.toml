@@ -5,5 +5,5 @@ pages_build_output_dir = "dist"
 [env.production]
 name = "describer"
 
-# Environment variables (set these in Cloudflare Pages dashboard)
-# ANTHROPIC_API_KEY = "your-anthropic-api-key-here"
+# Secrets (encrypted variables) - set via: wrangler pages secret put ANTHROPIC_API_KEY --project-name=describer
+# ANTHROPIC_API_KEY = "set via wrangler CLI as encrypted secret"
