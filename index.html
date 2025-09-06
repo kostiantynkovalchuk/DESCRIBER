@@ -3,78 +3,86 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Describer</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css"
-    />
+    <title>The Describer</title>
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cute+Font&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
+
+    <!-- CSS -->
     <link rel="stylesheet" href="index.css" />
   </head>
-
   <body>
+    <div class="sr-only">
+      <h2>Instructions for screen reader users:</h2>
+      <ul>
+        <li>Press Alt+D to describe the current image</li>
+        <li>Press Alt+S to speak the description aloud</li>
+        <li>Press Alt+C to copy the description</li>
+        <li>Press Alt+X to clear and start over</li>
+        <li>Use Tab to navigate between controls</li>
+      </ul>
+    </div>
+
+    <div id="sr-announcer" aria-live="assertive" class="sr-announcer"></div>
+
     <div class="flex-column container">
       <header>
-        <div class="header-composition">
-          <img
-            class="header-image"
-            src="images/mole_header.webp"
-            alt="Cute mole with sunglasses on"
-          />
-          <h1 class="header-title">
-            <span class="header-title-line-1">The</span>
-            <span class="header-title-line-2">Describer</span>
-          </h1>
-        </div>
+        <h1 class="header-title">
+          The Describer
+        </h1>
       </header>
+
       <main>
-        <section class="flex-column">
+        <!-- LEFT SECTION: Image Upload -->
+        <section class="upload-section flex-column">
+          <h2 class="section-title">📤 Upload Image</h2>
+          
           <button
             id="image-input-area"
             class="flex-column image-input-area"
             aria-label="Drop image or click to upload"
           >
-            <img
-              class="upload-icon"
-              src="images/upload.svg"
-              alt="Upload image"
-            />
+            <div style="font-size: 4rem; margin-bottom: 10px">📤</div>
             <p>Drop image here or click to upload</p>
+            <small>Supports JPG, PNG, GIF, WebP</small>
           </button>
+          
           <input
             type="file"
             id="file-input"
             class="file-input"
             accept="image/*"
           />
+
           <div class="flex-column controls">
             <div
               id="description-length-container"
               class="flex-column description-length-container disabled"
             >
               <div class="description-length-group">
-                <span class="description-length-min-label">1</span>
+                <span class="description-length-min-label">Brief</span>
                 <input
                   type="range"
                   id="description-length-input"
                   class="description-length-input"
                   min="1"
                   max="100"
-                  value="10"
+                  value="25"
                   aria-labelledby="description-length-text"
                   disabled
                 />
-                <span class="description-length-max-label">100</span>
+                <span class="description-length-max-label">Detailed</span>
               </div>
               <span id="description-length-text" class="description-length-text"
-                >Description Length: 10 Words</span
+                >Description Length: 25 Words</span
               >
             </div>
+            
             <button
               id="describe-button"
               class="button describe-button"
@@ -84,42 +92,62 @@
             </button>
           </div>
         </section>
+
+        <!-- RIGHT SECTION: Claude API Output -->
         <section
-          id="description-output-section"
-          class="flex-column description-output-section"
+          id="output-section"
+          class="output-section flex-column"
         >
+          <h2 class="section-title">📝 Description Output</h2>
+          
           <div id="description-content" class="flex-column description-content">
+            <div class="speak-controls">
+              <button id="speak-button" class="button speak-button" disabled>
+                🔊 Speak
+              </button>
+              <button
+                id="stop-speaking-button"
+                class="button speak-button"
+                disabled
+              >
+                ⏹️ Stop
+              </button>
+            </div>
+
             <textarea
               id="description-output-area"
-              placeholder="See description here"
+              placeholder="Upload an image to see AI-generated description here..."
               aria-label="Description of image"
               disabled
             ></textarea>
+
             <div class="flex-column controls">
               <button
                 id="copy-button"
                 class="button button-full-width"
                 disabled
               >
-                Copy
+                Copy Description
               </button>
               <button
                 id="clear-button"
                 class="button button-full-width"
                 disabled
               >
-                Clear
+                Clear & Reset
               </button>
             </div>
           </div>
+
           <div id="loading-section" class="flex-column loading-section">
-            <img src="images/loading-spinner.svg" alt="Loading spinner" />
+            <div class="spinner"></div>
             <div id="loading-message" class="loading-message">
-              Describing...
+              Analyzing image with Claude AI...
             </div>
           </div>
+
           <div id="error-section" class="flex-column error-section">
-            <div id="error-message" class="error-message">Message</div>
+            <div id="error-message" class="error-message">Error message</div>
             <button id="dismiss-error-button" class="button button-full-width">
               Dismiss Error
             </button>
@@ -128,6 +156,7 @@
       </main>
     </div>
 
-    <script type="module" src="index.js"></script>
+    <!-- JavaScript -->
+    <script src="script.js"></script>
   </body>
 </html>

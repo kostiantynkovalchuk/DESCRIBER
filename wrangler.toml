@@ -1,0 +1,8 @@
+name = "describer-app"
+compatibility_date = "2024-01-01"
+
+[env.production]
+name = "describer-app"
+
+# Environment variables (set these in Cloudflare Pages dashboard)
+# ANTHROPIC_API_KEY = "your-anthropic-api-key-here"
