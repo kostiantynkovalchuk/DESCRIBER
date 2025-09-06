@@ -122,29 +122,53 @@ function displayUploadedImage() {
 }
 
 function processImageFile(file) {
+  // Validate file size (max 20MB for mobile compatibility)
+  const maxSize = 20 * 1024 * 1024; // 20MB
+  if (file.size > maxSize) {
+    showError("Image too large. Please use an image smaller than 20MB.");
+    return;
+  }
+
+  // Validate file type
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+  if (!allowedTypes.includes(file.type.toLowerCase())) {
+    showError("Unsupported image format. Please use JPG, PNG, GIF, or WebP.");
+    return;
+  }
+
   imageType = file.type;
   
   // Create FileReader to convert to base64
   const reader = new FileReader();
   reader.onload = function(e) {
-    imageUrl = e.target.result;
-    
-    // Display the image
-    imageInputArea.innerHTML = `
-      <img src="${imageUrl}" alt="Uploaded image" class="uploaded-img" />
-    `;
-    
-    // Enable controls
-    descriptionLengthContainer.classList.remove("disabled");
-    descriptionLengthInput.disabled = false;
-    describeButton.disabled = false;
-    
-    announceToScreenReader("Image uploaded successfully. Ready to describe.");
-    describeButton.focus();
+    try {
+      imageUrl = e.target.result;
+      
+      // Validate base64 data
+      if (!imageUrl || !imageUrl.includes(',')) {
+        throw new Error("Invalid image data");
+      }
+      
+      // Display the image
+      imageInputArea.innerHTML = `
+        <img src="${imageUrl}" alt="Uploaded image" class="uploaded-img" />
+      `;
+      
+      // Enable controls
+      descriptionLengthContainer.classList.remove("disabled");
+      descriptionLengthInput.disabled = false;
+      describeButton.disabled = false;
+      
+      announceToScreenReader("Image uploaded successfully. Ready to describe.");
+      describeButton.focus();
+    } catch (error) {
+      console.error("Image processing error:", error);
+      showError("Failed to process the image file.");
+    }
   };
   
   reader.onerror = function() {
-    showError("Failed to process the image file.");
+    showError("Failed to read the image file.");
   };
   
   reader.readAsDataURL(file);
@@ -163,7 +187,17 @@ async function describe() {
   try {
     // Get the base64 data without the data URL prefix
     const base64Data = imageUrl.split(",")[1];
+    
+    // Validate base64 data exists
+    if (!base64Data) {
+      throw new Error("Invalid image data format");
+    }
+    
     const descriptionLength = descriptionLengthInput.value;
+
+    // Create request with timeout for mobile networks
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
     const response = await fetch("/api/describe", {
       method: "POST",
@@ -172,13 +206,27 @@ async function describe() {
       },
       body: JSON.stringify({
         image: base64Data,
-        imageType: imageType,
-        maxWords: parseInt(descriptionLength)
-      })
+        imageType: imageType || 'image/jpeg',
+        maxWords: parseInt(descriptionLength) || 25
+      }),
+      signal: controller.signal
     });
 
+    clearTimeout(timeoutId);
+
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error("API Error Response:", response.status, errorText);
+      
+      if (response.status === 400) {
+        throw new Error("Bad request - please try a different image or check image format");
+      } else if (response.status === 413) {
+        throw new Error("Image too large - please use a smaller image");
+      } else if (response.status === 429) {
+        throw new Error("Too many requests - please wait and try again");
+      } else {
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      }
     }
 
     const result = await response.json();
@@ -186,13 +234,20 @@ async function describe() {
     if (result.description) {
       showDescription(result.description);
       announceToScreenReader("Description generated successfully.");
+    } else if (result.error) {
+      throw new Error(result.error);
     } else {
       throw new Error("No description received from API");
     }
 
   } catch (error) {
     console.error("Description error:", error);
-    showError(`Failed to describe image: ${error.message}`);
+    
+    if (error.name === 'AbortError') {
+      showError("Request timed out. Please check your connection and try again.");
+    } else {
+      showError(`Failed to describe image: ${error.message}`);
+    }
     announceToScreenReader("Failed to generate description.");
   }
 }
@@ -336,7 +391,7 @@ function copy() {
 }
 
 function clear() {
-  // Reset image
+  // Reset image state completely
   imageUrl = null;
   imageType = null;
   
@@ -344,10 +399,12 @@ function clear() {
   imageInputArea.innerHTML = `
     <div style="font-size: 4rem; margin-bottom: 10px">📤</div>
     <p>Drop image here or click to upload</p>
+    <small>Supports JPG, PNG, GIF, WebP</small>
   `;
   
-  // Reset form
+  // Reset form completely
   fileInput.value = "";
+  fileInput.files = null; // Clear file input on mobile
   descriptionOutputArea.value = "";
   descriptionLengthInput.value = "25";
   updateDescriptionLengthText();
@@ -363,9 +420,17 @@ function clear() {
   
   // Stop any speech
   speechSynthesis.cancel();
+  if (stopSpeakingButton) {
+    stopSpeakingButton.disabled = true;
+  }
   
   // Hide all sections
   hideAllSections();
+  
+  // Force garbage collection of image data (helps with mobile memory)
+  if (window.gc) {
+    window.gc();
+  }
   
   // Focus back on upload area
   imageInputArea.focus();
