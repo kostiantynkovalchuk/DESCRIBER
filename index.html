@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Describer</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Cute+Font&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+	<div class="flex-column container">
+		<header>
+			<img class="header-image" src="images/cute-cat.webp" alt="Cute cat with sunglasses on">
+			<h1 class="header-title">
+				<span class="header-title-line-1">The</span>
+				<span class="header-title-line-2">Describer</span>
+			</h1>
+		</header>
+		<main>
+			<section class="flex-column">
+				<button id="image-input-area" class="flex-column image-input-area" aria-label="Drop image or click to upload">
+                    <img class="upload-icon" src="images/upload.svg" alt="Upload image">
+                    <p>Drop image here or click to upload</p>
+                </button>
+				<input type="file" id="file-input" class="file-input" accept="image/*">
+				<div class="flex-column controls">
+					<div id="description-length-container" class="flex-column description-length-container disabled">
+						<div class="description-length-group">
+							<span class="description-length-min-label">1</span>
+							<input type="range" id="description-length-input" class="description-length-input" min="1" max="100" value="10" aria-labelledby="description-length-text"
+							 disabled>
+							<span class="description-length-max-label">100</span>
+						</div>
+						<span id="description-length-text" class="description-length-text">Description Length: 10 Words</span>
+					</div>
+					<button id="describe-button" class="button describe-button" disabled>Describe</button>
+				</div>
+			</section>
+			<section id="description-output-section" class="flex-column description-output-section">
+				<div id="description-content" class="flex-column description-content">
+					<textarea id="description-output-area" placeholder="See description here" aria-label="Description of image" disabled></textarea>
+					<div class="flex-column controls">
+						<button id="copy-button" class="button button-full-width" disabled>Copy</button>
+						<button id="clear-button" class="button button-full-width" disabled>Clear</button>
+					</div>
+				</div>
+				<div id="loading-section" class="flex-column loading-section">
+					<img src="images/loading-spinner.svg" alt="Loading spinner">
+					<div id="loading-message" class="loading-message">Describing...</div>
+				</div>
+				<div id="error-section" class="flex-column error-section">
+					<div id="error-message" class="error-message">Message</div>
+					<button id="dismiss-error-button" class="button button-full-width">Dismiss Error</button>
+				</div>
+			</section>
+		</main>
+	</div>
+
+	<script type="module" src="index.js"></script>
+</body>
+
+</html>
