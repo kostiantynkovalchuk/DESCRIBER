@@ -1,0 +1,49 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#cdd0d1"/>
+  
+  <!-- Header Background -->
+  <rect width="1200" height="150" fill="#ffbf8f"/>
+  
+  <!-- Title -->
+  <text x="600" y="100" font-family="Inter, Arial, sans-serif" font-size="64" font-weight="700" text-anchor="middle" fill="#2563eb">
+    The Describer
+  </text>
+  
+  <!-- Main Content Area -->
+  <rect x="80" y="200" width="1040" height="350" rx="16" fill="#f5f6f9"/>
+  
+  <!-- Left Panel (Upload) -->
+  <rect x="120" y="240" width="460" height="270" rx="12" fill="#ffbf8f"/>
+  <text x="350" y="280" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="600" text-anchor="middle" fill="#0f0000">
+    Upload Image
+  </text>
+  <text x="350" y="340" font-size="60" text-anchor="middle">📤</text>
+  <text x="350" y="380" font-family="Inter, Arial, sans-serif" font-size="18" text-anchor="middle" fill="#0f0000">
+    Drag & Drop or Click
+  </text>
+  <text x="350" y="420" font-family="Inter, Arial, sans-serif" font-size="18" text-anchor="middle" fill="#2563eb" font-weight="600">
+    Describe
+  </text>
+  
+  <!-- Right Panel (Output) -->
+  <rect x="620" y="240" width="460" height="270" rx="12" fill="#ffffff"/>
+  <text x="850" y="280" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="600" text-anchor="middle" fill="#0f0000">
+    Description
+  </text>
+  <text x="850" y="320" font-size="36" text-anchor="middle">🔊</text>
+  <text x="850" y="360" font-family="Inter, Arial, sans-serif" font-size="16" text-anchor="middle" fill="#666">
+    AI-generated descriptions
+  </text>
+  <text x="850" y="385" font-family="Inter, Arial, sans-serif" font-size="16" text-anchor="middle" fill="#666">
+    read aloud for accessibility
+  </text>
+  <text x="850" y="420" font-family="Inter, Arial, sans-serif" font-size="14" text-anchor="middle" fill="#2563eb">
+    Powered by Claude AI
+  </text>
+  
+  <!-- Bottom tagline -->
+  <text x="600" y="590" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="500" text-anchor="middle" fill="#0f0000">
+    Making images accessible through AI • Built for vision-impaired users
+  </text>
+</svg>

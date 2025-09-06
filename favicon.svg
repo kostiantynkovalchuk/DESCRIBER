@@ -1,0 +1,8 @@
+<svg width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="16" fill="#2563eb"/>
+  <!-- Eye icon -->
+  <circle cx="16" cy="16" r="8" fill="#ffffff"/>
+  <circle cx="16" cy="16" r="4" fill="#2563eb"/>
+  <circle cx="17" cy="15" r="1.5" fill="#ffffff"/>
+</svg>
