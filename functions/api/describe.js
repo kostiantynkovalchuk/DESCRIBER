@@ -1,6 +1,4 @@
-// Cloudflare Pages function for image description using Anthropic Claude
-import Anthropic from '@anthropic-ai/sdk';
-
+// Cloudflare Pages function for image description using Anthropic Claude API
 export async function onRequestPost(context) {
   const { request, env } = context;
 
@@ -50,11 +48,6 @@ export async function onRequestPost(context) {
       });
     }
 
-    // Initialize Anthropic client
-    const anthropic = new Anthropic({
-      apiKey: env.ANTHROPIC_API_KEY,
-    });
-
     // Determine media type from imageType
     let mediaType = 'image/jpeg'; // default
     if (imageType) {
@@ -72,33 +65,69 @@ export async function onRequestPost(context) {
 
 Keep the description clear, objective, and helpful for accessibility. Limit to approximately ${maxWords} words.`;
 
-    // Make API call to Claude
-    const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 1000,
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'text',
-              text: prompt
-            },
-            {
-              type: 'image',
-              source: {
-                type: 'base64',
-                media_type: mediaType,
-                data: image
+    // Make direct API call to Anthropic Claude
+    const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 1000,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: prompt
+              },
+              {
+                type: 'image',
+                source: {
+                  type: 'base64',
+                  media_type: mediaType,
+                  data: image
+                }
               }
-            }
-          ]
-        }
-      ]
+            ]
+          }
+        ]
+      })
     });
 
+    if (!anthropicResponse.ok) {
+      const errorText = await anthropicResponse.text();
+      console.error('Anthropic API Error:', anthropicResponse.status, errorText);
+      
+      let errorMessage = 'Failed to process image description';
+      
+      if (anthropicResponse.status === 401) {
+        errorMessage = 'Invalid API key. Please check your Anthropic API key configuration.';
+      } else if (anthropicResponse.status === 429) {
+        errorMessage = 'Rate limit exceeded. Please try again later.';
+      } else if (anthropicResponse.status === 400) {
+        errorMessage = 'Invalid request. Please check the image format and size.';
+      }
+
+      return new Response(JSON.stringify({ 
+        error: errorMessage,
+        details: `API returned ${anthropicResponse.status}`
+      }), {
+        status: anthropicResponse.status,
+        headers: { 
+          'Content-Type': 'application/json',
+          ...corsHeaders 
+        },
+      });
+    }
+
+    const result = await anthropicResponse.json();
+    
     // Extract description from response
-    const description = response.content[0]?.text || 'Unable to generate description';
+    const description = result.content?.[0]?.text || 'Unable to generate description';
 
     return new Response(JSON.stringify({ 
       description,
@@ -114,24 +143,11 @@ Keep the description clear, objective, and helpful for accessibility. Limit to a
   } catch (error) {
     console.error('API Error:', error);
     
-    let errorMessage = 'Failed to process image description';
-    let statusCode = 500;
-
-    // Handle specific Anthropic API errors
-    if (error.status === 401) {
-      errorMessage = 'Invalid API key. Please check your Anthropic API key configuration.';
-    } else if (error.status === 429) {
-      errorMessage = 'Rate limit exceeded. Please try again later.';
-    } else if (error.status === 400) {
-      errorMessage = 'Invalid request. Please check the image format and size.';
-      statusCode = 400;
-    }
-
     return new Response(JSON.stringify({ 
-      error: errorMessage,
+      error: 'Internal server error',
       details: error.message 
     }), {
-      status: statusCode,
+      status: 500,
       headers: { 
         'Content-Type': 'application/json',
         ...corsHeaders 
